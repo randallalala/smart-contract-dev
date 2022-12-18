@@ -10,9 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache node dependencies
-        uses: actions/cache@v2
-
       - name: Replacing Environment Variables
         env:
           WALLET_MNEMONIC: ${{secrets.WALLET_MNEMONIC}}
