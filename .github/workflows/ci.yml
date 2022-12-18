@@ -27,7 +27,9 @@ jobs:
         with:
           target: 'contracts/'
 
-
+      - name: truffle
+        run : npm install -g truffle
+  
       - name: Testing
         run: npm run contract:test
 
