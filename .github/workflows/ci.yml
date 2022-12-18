@@ -27,17 +27,26 @@ jobs:
         with:
           target: 'contracts/'
 
-      - name: truffle
-        run : |
-          npm install -g truffle
-          truffle init
-          truffle compile
-          truffle migrate
-          truffle test
-        
-  
-      - name: Testing
-        run: npm run contract:test
+#       - name: truffle
+#         run : |
+#           npm install -g truffle
+#           truffle init
+#           truffle compile
+#           truffle migrate
+#           truffle test
+
+      - name: Install dependencies
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn
+
+      - name: Artifact build
+        run: yarn compile
+
+      - name: Unit-Test Contracts
+        run: yarn test
+
+#       - name: Testing
+#         run: npm run contract:test
 
       - name: Deploy Contract
         run: |
