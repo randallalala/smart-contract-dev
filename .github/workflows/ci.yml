@@ -1,8 +1,79 @@
-name: Deploy test
+# name: Deploy test
+# on:
+#   push:
+#     branches: 
+#       - main
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+
+#       - name: Replacing Environment Variables
+#         env:
+#           WALLET_MNEMONIC: ${{secrets.WALLET_MNEMONIC}}
+#           INFURA_ENDPOINT: ${{secrets.INFURA_ENDPOINT}}
+#           ETH_NETWORK_ID: ${{secrets.ETH_NETWORK_ID}}
+#         run: |
+#           sed -i "s@__MNEMONIC__@${WALLET_MNEMONIC}@g" environment.json
+#           sed -i "s@__ENDPOINT__@${INFURA_ENDPOINT}@g" environment.json
+#           sed -i "s@__REACT_APP_EHTEREUM_NETWORK_ID__@${ETH_NETWORK_ID}@g" .env
+
+#       - name: slither
+#         uses: crytic/slither-action@v0.2.0
+#         continue-on-error: true
+#         id: slither
+#         with:
+#           target: 'contracts/'
+
+# #       - name: truffle
+# #         run : |
+# #           npm install -g truffle
+# #           truffle init
+# #           truffle compile
+# #           truffle migrate
+# #           truffle test
+
+#       - name: Install dependencies
+#         if: steps.yarn-cache.outputs.cache-hit != 'true'
+#         run: yarn
+
+#       - name: Artifact build
+#         run: yarn compile
+
+#       - name: Unit-Test Contracts
+#         run: yarn test
+
+# #       - name: Testing
+# #         run: npm run contract:test
+
+#       - name: Deploy Contract
+#         run: |
+#           npm run contract:deploy -- --network rinkeby
+
+#       - name: Build site
+#         run: npm run build
+
+#       - name: Deploy GH Page
+#         if: success()
+#         uses: crazy-max/ghaction-github-pages@v1
+#         with:
+#           target_branch: gh-pages
+#           build_dir: build
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+
+name: Solidity CI and Security Static Scan
+
 on:
   push:
-    branches: 
+    branches:
       - main
+  pull_request:
+    branches:
+      - main
+      - release*/**
 
 jobs:
   build:
@@ -10,30 +81,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Replacing Environment Variables
-        env:
-          WALLET_MNEMONIC: ${{secrets.WALLET_MNEMONIC}}
-          INFURA_ENDPOINT: ${{secrets.INFURA_ENDPOINT}}
-          ETH_NETWORK_ID: ${{secrets.ETH_NETWORK_ID}}
-        run: |
-          sed -i "s@__MNEMONIC__@${WALLET_MNEMONIC}@g" environment.json
-          sed -i "s@__ENDPOINT__@${INFURA_ENDPOINT}@g" environment.json
-          sed -i "s@__REACT_APP_EHTEREUM_NETWORK_ID__@${ETH_NETWORK_ID}@g" .env
-
-      - name: slither
-        uses: crytic/slither-action@v0.2.0
-        continue-on-error: true
-        id: slither
+      - name: Cache node dependencies
+        uses: actions/cache@v2
+        id: yarn-cache
         with:
-          target: 'contracts/'
-
-#       - name: truffle
-#         run : |
-#           npm install -g truffle
-#           truffle init
-#           truffle compile
-#           truffle migrate
-#           truffle test
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
         if: steps.yarn-cache.outputs.cache-hit != 'true'
@@ -45,21 +99,9 @@ jobs:
       - name: Unit-Test Contracts
         run: yarn test
 
-#       - name: Testing
-#         run: npm run contract:test
-
-      - name: Deploy Contract
-        run: |
-          npm run contract:deploy -- --network rinkeby
-
-      - name: Build site
-        run: npm run build
-
-      - name: Deploy GH Page
-        if: success()
-        uses: crazy-max/ghaction-github-pages@v1
+      - name: Run Slither
+        uses: crytic/slither-action@v0.1.0
+        continue-on-error: true
+        id: slither
         with:
-          target_branch: gh-pages
-          build_dir: build
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+          target: 'contracts/'
