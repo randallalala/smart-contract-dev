@@ -20,9 +20,6 @@ jobs:
           sed -i "s@__ENDPOINT__@${INFURA_ENDPOINT}@g" environment.json
           sed -i "s@__REACT_APP_EHTEREUM_NETWORK_ID__@${ETH_NETWORK_ID}@g" .env
 
-      - name: solhint
-        uses: contractshark/inject-solhint-ci@1.0.0+0
-
       - name: slither
         uses: crytic/slither-action@v0.2.0
 
