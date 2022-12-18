@@ -1,4 +1,4 @@
-name: Deploy DApp
+name: Deploy test
 on:
   push:
     branches: 
@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache node dependencies
+        uses: actions/cache@v2
 
       - name: Replacing Environment Variables
         env:
@@ -22,10 +25,11 @@ jobs:
 
       - name: Linting
         run: |
-          npm i -g truffle
-          npm ci
           npm run linter
           npm run solhint
+
+      - name: slither
+        uses: crytic/slither-action@v0.2.0
 
       - name: Testing
         run: npm run contract:test
