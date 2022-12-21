@@ -36,9 +36,9 @@ jobs:
 #           truffle test
 
       - name: Install dependencies
-        if: |
-          steps.yarn-cache.outputs.cache-hit != 'true'
-          always()
+        if: always()
+         # steps.yarn-cache.outputs.cache-hit != 'true'
+         
         run: yarn
 
       - name: Artifact build
