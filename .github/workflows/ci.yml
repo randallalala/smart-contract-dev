@@ -36,7 +36,7 @@ jobs:
 #           truffle test
 
       - name: Install dependencies
-        if: always()
+        continue-on-error: true
          # steps.yarn-cache.outputs.cache-hit != 'true'
          
         run: yarn
